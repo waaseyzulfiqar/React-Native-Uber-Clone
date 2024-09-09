@@ -80,8 +80,8 @@ export default function HomeScreen() {
         onChangeText={searchedText}
       />
 
-      {searchResult && !pickupLocation && searchResult.map((item: any) => {
-        return <TouchableOpacity style={{marginLeft: 10, marginTop: 12}} onPress={() => setPickupLocation(item)}>
+      {searchResult && !pickupLocation && searchResult.map((item: any, index:number) => {
+        return <TouchableOpacity key={index} style={{marginLeft: 10, marginTop: 12}} onPress={() => setPickupLocation(item)}>
             <Text>
               {item.name} | {item.location.formatted_address}
             </Text>
@@ -89,7 +89,7 @@ export default function HomeScreen() {
       })}
 
       {pickupLocation && <View>
-        <Text>Pickup Location Selected: {pickupLocation.name}</Text>
+        <Text style={{marginLeft: 10, marginTop: 10}}>Pickup Location Selected: {pickupLocation.name}</Text>
       </View>}
       {location && (
         <MapView
@@ -112,7 +112,7 @@ export default function HomeScreen() {
 
 )}
 
-<TouchableOpacity>
+<TouchableOpacity style={styles.dropoffbtn}>
   <Button
     title="Dropoff"
     color="#4169E1"
@@ -137,6 +137,12 @@ const styles = StyleSheet.create({
   },
   mapview: {
     width: "100%",
-    height: "80%",
+    height: "100%",
+  },
+  dropoffbtn:{
+    position: 'absolute',
+    bottom: 0,
+    width: "100%",
+    padding: 10
   },
 });

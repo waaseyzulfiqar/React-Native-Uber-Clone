@@ -119,7 +119,7 @@ import {
   
   )}
   
-  <TouchableOpacity>
+  <TouchableOpacity style={styles.dropoffbtn}>
   <Button
     title="Car Selection"
     color="#4169E1"
@@ -150,5 +150,11 @@ import {
       width: "100%",
       height: "80%",
     },
+    dropoffbtn:{
+      position: 'absolute',
+      bottom: 0,
+      width: "100%",
+      padding: 10
+    }
   });
   
