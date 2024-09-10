@@ -43,6 +43,7 @@ export default function HomeScreen() {
       // );
     })();
   }, []);
+  
 
   const rates: { [key: string]: number } = {
     bike: 70,
@@ -74,7 +75,7 @@ export default function HomeScreen() {
       { text: "OK", onPress: () => console.log("OK Pressed") },
     ]
   );
-  
+
   }
 
   // calcualte fares
