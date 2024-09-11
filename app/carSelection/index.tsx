@@ -14,10 +14,13 @@ import * as Location from "expo-location";
 
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
+import { addDataToDb } from "@/config/firebase";
 
 export default function HomeScreen() {
   const params = useLocalSearchParams();
   console.log(params);
+
+  const {pickupLatitude, pickupLongitude, dropoffLatitude, dropoffLongitude} = params
 
   const [location, setLocation] = useState<any>(null);
   const [errorMsg, setErrorMsg] = useState<any>(null);
@@ -43,6 +46,11 @@ export default function HomeScreen() {
       // );
     })();
   }, []);
+
+
+  const sendData = () => {
+    
+  }
   
 
   const rates: { [key: string]: number } = {
@@ -52,18 +60,15 @@ export default function HomeScreen() {
     AcCar: 224,
   };
 
-  function calculateFare(vehicle: any) {
+function calculateFare(vehicle: any) {
     const baseFare = rates[vehicle];
     const distance = calcCrow(
-      Number(params.pickupLatitude),
-      Number(params.pickupLongitude),
-      Number(params.dropoffLatitude),
-      Number(params.dropoffLongitude)
+      Number(pickupLatitude),
+      Number(pickupLongitude),
+      Number(dropoffLatitude),
+      Number(dropoffLongitude)
     );
-    console.log("basefare ===> ", baseFare);
-    console.log("distance ===> ", distance);
     const fare = baseFare * distance;
-    console.log("fare ===> ", fare);
     setFare(Math.round(fare));
 
 
@@ -72,7 +77,7 @@ export default function HomeScreen() {
     `Your Est. fare will be ${Math.round(fare)}`,
     [
       { text: "Cancel", onPress: () => console.log("Cancel Pressed"), style: "cancel" },
-      { text: "OK", onPress: () => console.log("OK Pressed") },
+      { text: "OK", onPress: () => addDataToDb({fare, pickupLatitude, pickupLongitude, dropoffLatitude, dropoffLongitude, vehicle, distance}) },
     ]
   );
 
