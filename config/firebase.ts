@@ -1,8 +1,5 @@
 import { initializeApp } from "firebase/app";
 import { addDoc, collection, getFirestore } from "firebase/firestore";
-import { doc, setDoc } from "firebase/firestore"; 
-import { Alert } from "react-native";
-
 
 const firebaseConfig = {
   apiKey: "AIzaSyD20P3W0sWy-8KM1lMoP_40LYhuA9SVlXI",
@@ -17,25 +14,6 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 
-export const addDataToDb = async (userInfo: any) => {
-  const { fare, pickupLatitude, pickupLongitude, dropoffLatitude, dropoffLongitude, vehicle, distance } = userInfo;
-
-  try {
-    const docRef = await addDoc(collection(db, "User_Data"), {
-      fare: fare,
-      pickupLatitude: pickupLatitude,
-      pickupLongitude: pickupLongitude,
-      dropoffLatitude: dropoffLatitude,
-      dropoffLongitude: dropoffLongitude,
-      vehicle: vehicle,
-      distance: distance
-    });
-
-    // Show success alert
-    Alert.alert("Success", "Data has been added to the database successfully!");
-  } catch (error) {
-    // Show error alert
-    Alert.alert("Error", "There was an issue adding the data. Please try again.");
-    console.error("Error adding document: ", error);
-  }
+export const addDataToDb = (ride: any) => {
+  return addDoc(collection(db, "Ride"), ride);
 };

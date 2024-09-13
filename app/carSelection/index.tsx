@@ -12,20 +12,29 @@ import MapView, { Marker } from "react-native-maps";
 
 import * as Location from "expo-location";
 
-import { router, useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import { addDataToDb } from "@/config/firebase";
 
 export default function HomeScreen() {
   const params = useLocalSearchParams();
-  console.log(params);
+  // console.log(params);
 
-  const {pickupLatitude, pickupLongitude, dropoffLatitude, dropoffLongitude} = params
+  const {
+    pickupLatitude,
+    pickupLongitude,
+    pickupAddress,
+    pickupName,
+    dropoffLatitude,
+    dropoffLongitude,
+    dropoffAddress,
+    dropoffName,
+  } = params;
 
   const [location, setLocation] = useState<any>(null);
   const [errorMsg, setErrorMsg] = useState<any>(null);
   const [fare, setFare] = useState<any>();
-
+  const [vehicle, setVehicle] = useState<any>()
 
   useEffect(() => {
     (async () => {
@@ -47,12 +56,6 @@ export default function HomeScreen() {
     })();
   }, []);
 
-
-  const sendData = () => {
-    
-  }
-  
-
   const rates: { [key: string]: number } = {
     bike: 70,
     rickshaw: 110,
@@ -60,7 +63,8 @@ export default function HomeScreen() {
     AcCar: 224,
   };
 
-function calculateFare(vehicle: any) {
+
+  function calculateFare(vehicle: any) {
     const baseFare = rates[vehicle];
     const distance = calcCrow(
       Number(pickupLatitude),
@@ -70,22 +74,26 @@ function calculateFare(vehicle: any) {
     );
     const fare = baseFare * distance;
     setFare(Math.round(fare));
+    setVehicle(vehicle)
 
 
-  Alert.alert(
-    "Estimated Fare!",
-    `Your Est. fare will be ${Math.round(fare)}`,
-    [
-      { text: "Cancel", onPress: () => console.log("Cancel Pressed"), style: "cancel" },
-      { text: "OK", onPress: () => addDataToDb({fare, pickupLatitude, pickupLongitude, dropoffLatitude, dropoffLongitude, vehicle, distance}) },
-    ]
-  );
-
+    Alert.alert(
+      "Estimated Fare!",
+      `Your Est. fare will be ${Math.round(fare)}`,
+      [
+        {
+          text: "Cancel",
+          onPress: () => console.log("Cancel Pressed"),
+          style: "cancel",
+        },
+        { text: "OK", onPress: sendDataToDb},
+      ]
+    );
   }
 
   // calcualte fares
 
-  function calcCrow(lat1:number, lon1:number, lat2:number, lon2:number) {
+  function calcCrow(lat1: number, lon1: number, lat2: number, lon2: number) {
     var R = 6371; // km
     var dLat = toRad(lat2 - lat1);
     var dLon = toRad(lon2 - lon1);
@@ -104,6 +112,40 @@ function calculateFare(vehicle: any) {
   function toRad(Value: any) {
     return (Value * Math.PI) / 180;
   }
+
+  const sendDataToDb = async () => {
+    const ride = {
+      pickup: {
+        pickupLatitude,
+        pickupLongitude,
+        pickupAddress,
+        pickupName,
+      },
+      dropOff: {
+        dropoffLatitude,
+        dropoffLongitude,
+        dropoffAddress,
+        dropoffName,
+      },
+      fare,
+      vehicle,
+      status: "pending",
+    };
+
+    console.log("ride  ===>", ride);
+    try {
+      await addDataToDb(ride);
+      Alert.alert(
+        "Pending..."
+      );
+    } catch (e) {
+      Alert.alert(
+        "Error",
+        "There was an issue adding the data. Please try again."
+      );
+      console.error("Error adding document: ", e);
+    }
+  };
 
   return (
     <View style={styles.container}>
