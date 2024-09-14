@@ -82,8 +82,8 @@ import {
           onChangeText={searchedText}
         />
   
-        {searchResult && !dropoffLocation && searchResult.map((item: any) => {
-          return <TouchableOpacity style={{marginLeft: 10, marginTop: 12}} onPress={() => setDropoffLocation(item)}>
+        {searchResult && !dropoffLocation && searchResult.map((item: any, index:any) => {
+          return <TouchableOpacity key={index} style={{marginLeft: 10, marginTop: 12}} onPress={() => setDropoffLocation(item)}>
               <Text>
                 {item.name} | {item.location.formatted_address}
               </Text>

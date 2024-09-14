@@ -14,7 +14,7 @@ import * as Location from "expo-location";
 
 import { useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
-import { addDataToDb } from "@/config/firebase";
+import { addDataToDb,collection, db, onSnapshot, query, doc  } from "../../config/firebase";
 
 export default function HomeScreen() {
   const params = useLocalSearchParams();
@@ -34,9 +34,14 @@ export default function HomeScreen() {
   const [location, setLocation] = useState<any>(null);
   const [errorMsg, setErrorMsg] = useState<any>(null);
   const [fare, setFare] = useState<any>();
-  const [vehicle, setVehicle] = useState<any>()
+  const [vehicle, setVehicle] = useState<any>();
 
   useEffect(() => {
+    getLocation();
+    rideStatusListener()
+  }, []);
+
+  const getLocation = () => {
     (async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== "granted") {
@@ -54,7 +59,23 @@ export default function HomeScreen() {
       //   }
       // );
     })();
-  }, []);
+  };
+
+    const rideStatusListener = async () => {
+      const q = query(collection(db, "Ride"));
+      onSnapshot(q, (querySnapshot) => {
+        querySnapshot.forEach((doc) => {
+          const rideStatus = doc.data().status;
+          const rideId = doc.id;
+          if (rideStatus === "accepted") {
+            Alert.alert(`Ride Accepted`);
+          } else if (rideStatus === "rejected") {
+            Alert.alert(`Ride Rejected`);
+          }
+        });
+      });
+    };
+  
 
   const rates: { [key: string]: number } = {
     bike: 70,
@@ -62,7 +83,6 @@ export default function HomeScreen() {
     mini: 170,
     AcCar: 224,
   };
-
 
   function calculateFare(vehicle: any) {
     const baseFare = rates[vehicle];
@@ -74,8 +94,8 @@ export default function HomeScreen() {
     );
     const fare = baseFare * distance;
     setFare(Math.round(fare));
-    setVehicle(vehicle)
-
+    setVehicle(vehicle);
+    console.log("Vehicle state:", vehicle);
 
     Alert.alert(
       "Estimated Fare!",
@@ -86,7 +106,7 @@ export default function HomeScreen() {
           onPress: () => console.log("Cancel Pressed"),
           style: "cancel",
         },
-        { text: "OK", onPress: sendDataToDb},
+        { text: "OK", onPress: sendDataToDb },
       ]
     );
   }
@@ -114,6 +134,8 @@ export default function HomeScreen() {
   }
 
   const sendDataToDb = async () => {
+    console.log("Sending data to DB...");
+
     const ride = {
       pickup: {
         pickupLatitude,
@@ -132,12 +154,10 @@ export default function HomeScreen() {
       status: "pending",
     };
 
-    console.log("ride  ===>", ride);
+    // console.log("ride  ===>", ride);
     try {
       await addDataToDb(ride);
-      Alert.alert(
-        "Pending..."
-      );
+      Alert.alert("Pending...");
     } catch (e) {
       Alert.alert(
         "Error",
